@@ -280,7 +280,7 @@ void OnClose(CFTypeRef ctrl,sio::client::close_reason const& reason)
 
 - (IBAction)onSend:(id)sender {
     if ([_messageField.text length]>0 && [_name length]>0) {
-        _io->socket()->emit("new message",[_messageField.text UTF8String]);
+      _io->socket()->emit("new message",std::string([_messageField.text UTF8String]));
         MessageItem *item = [[MessageItem alloc] init];
         
         item.flag = Message_You;
@@ -296,7 +296,8 @@ void OnClose(CFTypeRef ctrl,sio::client::close_reason const& reason)
 
 -(void)onConnected
 {
-    _io->socket()->emit("add user", [self.nickName.text UTF8String]);
+    _io->socket()->emit("add user", std::string([self.nickName.text UTF8String]));
+    [self onLogin:2];
 }
 
 -(void)onDisconnected
@@ -341,7 +342,7 @@ void OnClose(CFTypeRef ctrl,sio::client::close_reason const& reason)
 -(void) inputTimeout
 {
     _inputTimer = nil;
-    _io->socket()->emit("stop typing", "");
+    _io->socket()->emit("stop typing", std::string(""));
 }
 
 -(BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string
@@ -354,7 +355,7 @@ void OnClose(CFTypeRef ctrl,sio::client::close_reason const& reason)
         }
         else
         {
-            _io->socket()->emit("typing", "");
+            _io->socket()->emit("typing", std::string(""));
             _inputTimer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(inputTimeout) userInfo:nil repeats:NO];
         }
     }
@@ -417,7 +418,8 @@ void OnClose(CFTypeRef ctrl,sio::client::close_reason const& reason)
             socket->on("user joined", std::bind(&OnUserJoined, (__bridge CFTypeRef)self, _1,_2,_3,_4));
             socket->on("user left", std::bind(&OnUserLeft, (__bridge CFTypeRef)self, _1,_2,_3,_4));
             socket->on("login", std::bind(&OnLogin, (__bridge CFTypeRef)self, _1,_2,_3,_4));
-            _io->connect("ws://localhost:3000");
+//            _io->connect("ws://localhost:3000");
+            _io->connect("ws://39.106.169.151:8080");
             self.nickName.enabled = NO;
         }
     }
